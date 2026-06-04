@@ -1,4 +1,4 @@
--- I KNOW YOU GONNA STILL THIS NIGGER GET A JOB SYBAU
+-- I KNOW YOU GONNA STEAL THIS YOU NIGGER GET A JOB SYBAU
 local StarterGui = game:GetService("StarterGui")
 local function sendNotification(title, text)
     StarterGui:SetCore("SendNotification", {
