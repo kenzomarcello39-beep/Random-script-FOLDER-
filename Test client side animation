@@ -1,0 +1,105 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local humanoid = character:WaitForChild("Humanoid")
+
+-- ====================================================================
+-- 1. TRIGGER SERVER FE (Bypass Combat)
+-- ====================================================================
+pcall(function()
+    local fakeMouse = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Combat"):WaitForChild("FakeMouse"):WaitForChild("UpdatePosition")
+    local attackInput = player:WaitForChild("Remotes"):WaitForChild("Combat"):WaitForChild("AttackInput")
+    
+    -- Membidik kursor ke depan
+    local x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22 = (rootPart.CFrame * CFrame.new(0, 0, -30)):GetComponents()
+    fakeMouse:FireServer(CFrame.new(x, y, z, R00, R01, R02, R10, R11, R12, R20, R21, R22))
+    
+    -- Request serangan FE ke server
+    attackInput:FireServer("Malevolent Shrine")
+end)
+
+-- ====================================================================
+-- 2. ANIMASI POSE DOMAIN (Lokal)
+-- ====================================================================
+local animator = humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", humanoid)
+local animObj = Instance.new("Animation")
+animObj.AnimationId = "rbxassetid://93368855686702" -- ID Pose Heian Sukuna
+local domainTrack = animator:LoadAnimation(animObj)
+domainTrack.Priority = Enum.AnimationPriority.Action
+domainTrack:Play()
+
+-- ====================================================================
+-- 3. MUNCULKAN MODEL SHRINE & ANIMASI TWEEN
+-- ====================================================================
+local vfxFolder = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Player"):WaitForChild("Replication"):WaitForChild("VFX")
+local shrineModel = vfxFolder:WaitForChild("Heian Sukuna"):WaitForChild("Ultimate"):WaitForChild("Shrine")
+
+local domainDuration = 25.5 -- Durasi domain sesuai script asli game
+
+if shrineModel then
+    local shrineClone = shrineModel:Clone()
+    shrineClone.Name = "Hybrid_MalevolentShrine"
+    shrineClone.Parent = Workspace:WaitForChild("Visuals")
+    
+    -- FIX POSISI & ROTASI: Kuil di belakang (Z = 20) dan menghadap searah karakter (Rotasi = 0)
+    local shrineCFrame = rootPart.CFrame * CFrame.new(0, 11, 20) * CFrame.Angles(0, math.rad(0), 0)
+    shrineClone:PivotTo(shrineCFrame)
+
+    -- Efek bongkahan kuil menyatu (Diambil langsung dari logika script original game)
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out)
+    for _, part in pairs(shrineClone:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Anchored = true
+            part.CanCollide = false
+            
+            local targetCFrame = part.CFrame
+            local randomStart = targetCFrame * CFrame.new(math.random(-30, 30), math.random(-30, 30), math.random(-30, 30))
+            part.CFrame = randomStart * CFrame.Angles(math.rad(math.random(0, 360)), math.rad(math.random(0, 360)), math.rad(math.random(0, 360)))
+            
+            TweenService:Create(part, tweenInfo, {CFrame = targetCFrame}):Play()
+        end
+    end
+
+    -- Hapus Kuil setelah durasi selesai
+    task.delay(domainDuration, function()
+        if shrineClone then shrineClone:Destroy() end
+    end)
+else
+    warn("[ERROR] Model Shrine tidak ditemukan! Pastikan aset sudah ter-load di ReplicatedStorage.")
+end
+
+-- ====================================================================
+-- 4. EFEK VISUAL LAYAR (Color Correction Merah Gelap)
+-- ====================================================================
+local ccEffect = Instance.new("ColorCorrectionEffect")
+ccEffect.Name = "SukunaDomainCC"
+ccEffect.Parent = Lighting
+ccEffect.Brightness = -1
+
+-- Transisi dari gelap total ke atmosfer merah Domain
+task.delay(0.5, function()
+    TweenService:Create(ccEffect, TweenInfo.new(0.5), {
+        Brightness = 0,
+        Saturation = -0.5,
+        TintColor = Color3.new(1, 0, 0)
+    }):Play()
+end)
+
+-- Mengembalikan warna layar ke normal secara perlahan di akhir domain
+task.delay(domainDuration - 2, function()
+    if ccEffect then
+        TweenService:Create(ccEffect, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+            TintColor = Color3.new(1, 1, 1),
+            Brightness = 0,
+            Saturation = 0
+        }):Play()
+        task.delay(2, function() ccEffect:Destroy() end)
+    end
+end)
+
