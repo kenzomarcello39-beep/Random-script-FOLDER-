@@ -1,0 +1,224 @@
+----i know you gonna steal it dumb Ass
+----get a job buddy and stop skidding 
+
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local Lighting = game:GetService("Lighting")
+
+
+local allowedGames = {
+    [88308889239232] = true, -- Green baseplate
+    [123974602339071] = true -- Just a baseplate
+}
+
+
+local function applyRTXShader()
+    
+    for _, effect in pairs(Lighting:GetChildren()) do
+        if effect:IsA("PostEffect") then
+            effect:Destroy()
+        end
+    end
+
+    
+    Lighting.ClockTime = 12 
+    Lighting.Brightness = 2
+    Lighting.GlobalShadows = true
+    Lighting.OutdoorAmbient = Color3.fromRGB(150, 150, 160)
+    Lighting.Ambient = Color3.fromRGB(100, 100, 110)
+
+    
+    local bloom = Instance.new("BloomEffect")
+    bloom.Intensity = 0.3
+    bloom.Size = 20
+    bloom.Threshold = 0.8
+    bloom.Parent = Lighting
+
+    
+    local colorCorrection = Instance.new("ColorCorrectionEffect")
+    colorCorrection.Brightness = 0.05
+    colorCorrection.Contrast = 0.25 
+    colorCorrection.Saturation = 0.15 
+    colorCorrection.TintColor = Color3.fromRGB(255, 255, 255) 
+    colorCorrection.Parent = Lighting
+
+    
+    local sunRays = Instance.new("SunRaysEffect")
+    sunRays.Intensity = 0.1
+    sunRays.Spread = 0.3
+    sunRays.Parent = Lighting
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Alpha X-05"
+ScreenGui.Parent = CoreGui
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 320, 0, 70)
+Frame.Position = UDim2.new(1, 350, 1, -20) 
+Frame.AnchorPoint = Vector2.new(1, 1)
+Frame.BackgroundColor3 = Color3.fromRGB(5, 20, 5) 
+Frame.BorderSizePixel = 0
+Frame.ClipsDescendants = true
+Frame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = Frame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Thickness = 2
+UIStroke.Color = Color3.fromRGB(255, 255, 255)
+UIStroke.Parent = Frame
+
+local StrokeGradient = Instance.new("UIGradient")
+StrokeGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 0)),    
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 80, 0)),   
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 255, 50))   
+})
+StrokeGradient.Parent = UIStroke
+
+local MatrixContainer = Instance.new("Frame")
+MatrixContainer.Size = UDim2.new(1, 0, 1, 0)
+MatrixContainer.BackgroundTransparency = 1
+MatrixContainer.ClipsDescendants = true
+MatrixContainer.Parent = Frame
+
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Size = UDim2.new(1, -20, 1, -20)
+TextLabel.Position = UDim2.new(0, 10, 0, 10)
+TextLabel.BackgroundTransparency = 1
+TextLabel.Text = "Checking Game Compatibility..." 
+TextLabel.TextColor3 = Color3.fromRGB(200, 255, 200)
+TextLabel.Font = Enum.Font.Code
+TextLabel.TextSize = 14
+TextLabel.TextWrapped = true
+TextLabel.TextYAlignment = Enum.TextYAlignment.Center
+TextLabel.ZIndex = 2
+TextLabel.Parent = Frame
+
+local TextStroke = Instance.new("UIStroke")
+TextStroke.Color = Color3.fromRGB(0, 0, 0)
+TextStroke.Thickness = 1.5
+TextStroke.Parent = TextLabel
+
+local waveOffset = 0
+local waveAnim = RunService.RenderStepped:Connect(function(dt)
+    waveOffset = waveOffset + (dt * 1.5)
+    StrokeGradient.Offset = Vector2.new(math.sin(waveOffset), 0)
+end)
+
+local jpnChars = {"ｱ","ｲ","ｳ","ｴ","ｵ","ｶ","ｷ","ｸ","ｹ","ｺ","ｻ","ｼ","ｽ","ｾ","ｿ","ﾀ","ﾁ","ﾂ","ﾃ","ﾄ","ﾅ","ﾆ","ﾇ","ﾈ","ﾉ","ﾊ","ﾋ","ﾌ","ﾍ","ﾎ","ﾏ","ﾐ","ﾑ","ﾒ","ﾓ","ﾔ","ﾕ","ﾖ","ﾗ","ﾘ","ﾙ","ﾚ","ﾛ","ﾜ","ﾝ"}
+local matrixActive = true
+
+task.spawn(function()
+    while matrixActive do
+        if not MatrixContainer.Parent then break end
+        
+        local drop = Instance.new("TextLabel")
+        drop.Text = jpnChars[math.random(1, #jpnChars)]
+        drop.TextColor3 = Color3.fromRGB(0, math.random(150, 255), 0)
+        drop.TextTransparency = math.random(2, 6) / 10
+        drop.BackgroundTransparency = 1
+        drop.Font = Enum.Font.Code
+        drop.TextSize = math.random(12, 18)
+        
+        local startX = math.random()
+        drop.Position = UDim2.new(startX, 0, 0, -20)
+        drop.Size = UDim2.new(0, 20, 0, 20)
+        drop.Parent = MatrixContainer
+        
+        local dropSpeed = math.random(15, 30) / 10
+        local fallTween = TweenService:Create(drop, TweenInfo.new(dropSpeed, Enum.EasingStyle.Linear), {
+            Position = UDim2.new(startX, 0, 1, 20),
+            TextTransparency = 1
+        })
+        
+        fallTween:Play()
+        fallTween.Completed:Connect(function()
+            drop:Destroy()
+        end)
+        
+        task.wait(0.05) 
+    end
+end)
+
+local slideIn = TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(1, -20, 1, -20)})
+slideIn:Play()
+
+task.spawn(function()
+    task.wait(1.5)
+    
+    local fadeOut = TweenService:Create(TextLabel, TweenInfo.new(0.3), {TextTransparency = 1})
+    local fadeIn = TweenService:Create(TextLabel, TweenInfo.new(0.3), {TextTransparency = 0})
+
+    if not allowedGames[game.PlaceId] then
+        fadeOut:Play()
+        fadeOut.Completed:Wait()
+        
+        TextLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+        TextLabel.Text = "Failed To load Script Because Game not Support Reanimate"
+        fadeIn:Play()
+        
+        task.wait(4.5) 
+        
+        local slideOut = TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Position = UDim2.new(1, 400, 1, -20)})
+        slideOut:Play()
+        slideOut.Completed:Wait()
+        
+        matrixActive = false
+        waveAnim:Disconnect()
+        ScreenGui:Destroy()
+        
+        return
+    end
+
+    fadeOut:Play()
+    fadeOut.Completed:Wait()
+    
+    TextLabel.Text = "Wait for a Second for the Reanimate to load"
+    fadeIn:Play()
+
+    
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/banishercool/banishercool/refs/heads/main/Green%20Baseplate%20Reanimate.lua.txt"))()
+    
+    task.wait(4.5)         
+    
+    
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/kenzomarcello39-beep/Random-script-FOLDER-/refs/heads/main/obfuscated_script-Fe%20Naoya.lua.txt"))()
+    
+    
+    applyRTXShader()
+    
+    fadeOut:Play()
+    fadeOut.Completed:Wait()
+    
+    TextLabel.Text = "Script Successful Load"
+    fadeIn:Play()
+    
+    task.wait(3.5)
+    
+    fadeOut:Play()
+    fadeOut.Completed:Wait()
+    
+    local expandFrame = TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 360, 0, 150)})
+    expandFrame:Play()
+    
+    TextLabel.TextSize = 13 
+    TextLabel.Text = "Made by Scripterblabla\nMade by ban_thid Or Mr Eyes (for The Animation)\nVFX/SFX Made by Scripterblabla (Some VFX and SFX Made ban_thid)\n\nUhh This is FE Version Of Naoya Script and Only work for some game like,\n-- [UP] Just a baseplate By The Local Maze\n--Green Baseplate By The Local Maze"
+    
+    fadeIn:Play()
+
+    task.wait(8)
+        
+    local slideOut = TweenService:Create(Frame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Position = UDim2.new(1, 400, 1, -20)})
+    slideOut:Play()
+    slideOut.Completed:Wait()
+        
+    matrixActive = false
+    waveAnim:Disconnect()
+    ScreenGui:Destroy()
+end)
+
